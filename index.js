@@ -3,6 +3,7 @@ const app = express();
 const path = require("path");
 const port = process.env.PORT || 3000;
 const mongoose = require("mongoose");
+const session = require("express-session");
 
 mongoose.Promise = global.Promise;
 
@@ -10,12 +11,24 @@ const mongo = process.env.MONGODB || "mongodb://localhost/noticias";
 
 const User = require('./models/user')
 const noticias = require('./routes/noticias')
+const restrito = require('./routes/restrito')
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
+app.use(session({secret: 'fullstack-master'}))
+
 app.use(express.static("public"));
 
+
+app.use('/restrito', (req,res,next) => {
+  if('user' in req.session) {
+   return next()
+  }
+  res.send('precisa logar')
+})
+
+app.use('/restrito', restrito)
 app.use('/noticias', noticias)
 
 app.get("/", (req, res) => res.render("index"));
