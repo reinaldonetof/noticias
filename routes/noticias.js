@@ -1,11 +1,12 @@
-const express = require('express')
+const express = require("express");
 
-const router = express.Router()
+const router = express.Router();
 
-const Noticia = require('../models/noticia')
+const Noticia = require("../models/noticia");
 
-router.get('/', (req,res) => {
-  res.send('noticias publicas')
-})
+router.get("/", async (req, res) => {
+  const noticias = await Noticia.find({ category: "public" });
+  res.render("noticias/index", { noticias });
+});
 
-module.exports = router
+module.exports = router;

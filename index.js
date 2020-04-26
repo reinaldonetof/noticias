@@ -10,8 +10,11 @@ mongoose.Promise = global.Promise;
 const mongo = process.env.MONGODB || "mongodb://localhost/noticias";
 
 const User = require("./models/user");
+const Noticia = require("./models/noticia");
 const noticias = require("./routes/noticias");
 const restrito = require("./routes/restrito");
+const auth = require("./routes/auth");
+const pages = require("./routes/pages");
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
@@ -38,27 +41,9 @@ app.use("/restrito", (req, res, next) => {
 
 app.use("/restrito", restrito);
 app.use("/noticias", noticias);
-app.get("/login", (req, res) => {
-  res.render("login");
-});
+app.use("/", auth);
+app.use("/", pages);
 
-app.post("/login", async (req, res) => {
-  const user = await User.findOne({ username: req.body.username });
-  const isValid = await user.checkPassword(req.body.password);
-
-  if (isValid) {
-    req.session.user = user;
-    res.redirect("/restrito/noticias");
-  } else {
-    res.redirect("/login");
-  }
-  res.send({
-    user,
-    isValid,
-  });
-});
-
-app.get("/", (req, res) => res.render("index"));
 mongoose
   .connect(mongo, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -78,4 +63,20 @@ const createInitialUser = async () => {
   } else {
     console.log("Usuario cadastrado, vai pro login");
   }
+
+  const noticia = new Noticia({
+    title: "Notícia publica " + new Date().getTime(),
+    content: "content",
+    category: "public",
+  });
+
+  await noticia.save();
+
+  const noticiaPrivada = new Noticia({
+    title: "Notícia privada " + new Date().getTime(),
+    content: "content",
+    category: "private",
+  });
+
+  await noticiaPrivada.save();
 };
