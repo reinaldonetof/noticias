@@ -25,24 +25,11 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(express.static("public"));
 
-app.use((req, res, next) => {
-  if ("user" in req.session) {
-    res.locals.user = req.session.user;
-  }
-  next();
-});
-
-app.use("/restrito", (req, res, next) => {
-  if ("user" in req.session) {
-    return next();
-  }
-  res.redirect("/login");
-});
+app.use("/", auth);
+app.use("/", pages);
 
 app.use("/restrito", restrito);
 app.use("/noticias", noticias);
-app.use("/", auth);
-app.use("/", pages);
 
 mongoose
   .connect(mongo, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -64,7 +51,7 @@ const createInitialUser = async () => {
     console.log("Usuario cadastrado, vai pro login");
   }
 
-  const noticia = new Noticia({
+  /* const noticia = new Noticia({
     title: "Notícia publica " + new Date().getTime(),
     content: "content",
     category: "public",
@@ -78,5 +65,5 @@ const createInitialUser = async () => {
     category: "private",
   });
 
-  await noticiaPrivada.save();
+  await noticiaPrivada.save(); */
 };
