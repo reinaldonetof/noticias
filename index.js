@@ -13,6 +13,7 @@ const User = require("./models/user");
 const Noticia = require("./models/noticia");
 const noticias = require("./routes/noticias");
 const restrito = require("./routes/restrito");
+const admin = require("./routes/admin");
 const auth = require("./routes/auth");
 const pages = require("./routes/pages");
 
@@ -30,6 +31,7 @@ app.use("/", pages);
 
 app.use("/restrito", restrito);
 app.use("/noticias", noticias);
+app.use("/admin", admin);
 
 mongoose
   .connect(mongo, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -40,13 +42,20 @@ mongoose
   .catch((e) => console.log(e));
 
 const createInitialUser = async () => {
-  const total = await User.countDocuments({ username: "reinaldo" });
+  const total = await User.countDocuments();
   if (total === 0) {
     const user = new User({
       username: "reinaldo",
       password: "abc",
+      roles: ["restrito", "admin"],
     });
-    await user.save(() => console.log("opa"));
+    await user.save();
+    const user2 = new User({
+      username: "rneto",
+      password: "abc",
+      roles: ["restrito"],
+    });
+    await user2.save();
   } else {
     console.log("Usuario cadastrado, vai pro login");
   }
