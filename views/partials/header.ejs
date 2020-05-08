@@ -44,7 +44,7 @@
           <li class="nav-item">
             <a class="nav-link" href="/noticias"> Noticias </a>
           </li>
-          <% if('user' in locals) { %> <% if(locals.role === 'restrito') { %>
+          <% if(locals.user) { %> <% if(locals.role === 'restrito') { %>
           <li class="nav-item">
             <a class="nav-link" href="/restrito/noticias">
               Noticias restritas
