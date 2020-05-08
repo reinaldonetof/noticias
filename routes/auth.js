@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
 
+const facebook = require("../facebook.json");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
@@ -35,8 +36,8 @@ passport.use(
 passport.use(
   new FacebookStrategy(
     {
-      clientID: "2525761474343474",
-      clientSecret: "ca9ae80f0fd61c9e0ac0ba6bdfb17860",
+      clientID: facebook.clientID,
+      clientSecret: facebook.clientSecret,
       callbackURL: "http://localhost:3000/facebook/callback",
       profileFields: ["id", "displayName", "email", "photos"],
     },
