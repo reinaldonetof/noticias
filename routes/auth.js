@@ -62,8 +62,8 @@ router.post(
 );
 
 router.get("/change-role/:role", (req, res) => {
-  if ("user" in req.session) {
-    if (req.session.user.roles.indexOf(req.params.role) >= 0) {
+  if (req.isAuthenticated()) {
+    if (req.user.roles.indexOf(req.params.role) >= 0) {
       req.session.role = req.params.role;
     }
   }
