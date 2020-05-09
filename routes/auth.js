@@ -3,9 +3,11 @@ const router = express.Router();
 const User = require("../models/user");
 
 const facebook = require("../facebook.json");
+const google = require("../google.json");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
+const GoogleStrategy = require("passport-google-oauth").OAuth2Strategy;
 
 router.use(passport.initialize());
 router.use(passport.session());
@@ -47,6 +49,30 @@ passport.use(
         const user = new User({
           name: profile.displayName,
           facebookId: profile.id,
+          roles: ["restrito"],
+        });
+        await user.save();
+        done(null, user);
+      } else {
+        done(null, userDB);
+      }
+    }
+  )
+);
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: google.clientID,
+      clientSecret: google.clientSecret,
+      callbackURL: "http://localhost:3000/google/callback",
+    },
+    async (accessToken, refreshToken, err, profile, done) => {
+      const userDB = await User.findOne({ googleId: profile.id });
+      if (!userDB) {
+        const user = new User({
+          name: profile.displayName,
+          googleId: profile.id,
           roles: ["restrito"],
         });
         await user.save();
@@ -104,6 +130,20 @@ router.get(
   (req, res) => {
     res.redirect("/");
   }
+);
+
+router.get(
+  "/google",
+  passport.authenticate("google", {
+    scope: ["https://www.googleapis.com/auth/userinfo.profile"],
+  })
+);
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/",
+    successRedirect: "/",
+  })
 );
 
 module.exports = router;
